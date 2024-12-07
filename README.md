@@ -11,3 +11,15 @@ In other words, this is not a tutorial, but a diary. XD
 ## Environment
 
 Deno is used to run the code. You can install it by following the instructions on the [Deno website](https://deno.land/).
+
+## Running the code
+
+To run the test, you can use the following command:
+
+Example:
+
+```bash
+deno test --allow-read src/day1/day1.test.ts
+```
+
+If using VSCode, built-in test runner can be used.
