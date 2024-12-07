@@ -12,9 +12,9 @@ In other words, this is not a tutorial, but a diary. XD
 
 Deno is used to run the code. You can install it by following the instructions on the [Deno website](https://deno.land/).
 
-## Running the code
+## Testing
 
-To run the test, you can use the following command:
+To run the test, I use the following command:
 
 Example:
 
