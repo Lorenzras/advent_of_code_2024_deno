@@ -19,7 +19,7 @@ To run the test, you can use the following command:
 Example:
 
 ```bash
-deno test --allow-read src/day1/day1.test.ts
+deno test --allow-read src/day_01/part_01.test.ts
 ```
 
 If using VSCode, built-in test runner can be used.
