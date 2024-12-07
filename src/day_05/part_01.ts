@@ -1,21 +1,21 @@
-const setRuleWeight = (rawRules: string) => {
-  const ruleWeight = new Map<string, number>();
+const organizeRules = (rawRules: string) => {
+  const ruleItems = new Map<string, string[]>();
 
   rawRules.split("\n").forEach((x) => {
     const [before, after] = x.split("|");
 
-    const currRuleWeight = ruleWeight.get(before) ?? 1;
+    if (!ruleItems.has(before)) {
+      ruleItems.set(before, []);
+    }
 
-    // Increment the weight of the 'before' rule
-    ruleWeight.set(before, currRuleWeight + 1);
+    ruleItems.get(before)?.push(after);
 
-    // Ensure the 'after' rule has a weight of at least 1
-    if (!ruleWeight.has(after)) {
-      ruleWeight.set(after, 1);
+    if (!ruleItems.has(after)) {
+      ruleItems.set(after, []);
     }
   });
 
-  return ruleWeight;
+  return ruleItems;
 };
 
 export default function (input: string): number {
@@ -23,36 +23,25 @@ export default function (input: string): number {
 
   const updates = rawUpdates.split("\n").map((x) => x.split(","));
 
-  const ruleWeight = setRuleWeight(rawRules);
+  const rulesMap = organizeRules(rawRules);
 
   let correctUpdatesSum = 0;
 
-  for (const update of updates) {
-    let prevUpdateWeight = ruleWeight.get(update[0]) ?? 0;
+  for (const updateRow of updates) {
     let isCorrectUpdate = true;
-
-    for (let uIdx = 1; uIdx < update.length; uIdx++) {
-      const currUpdateItem = update[uIdx];
-
-      if (!ruleWeight.has(currUpdateItem)) {
-        // allow non-existent update
-        continue;
+    for (let uIdx = 0; uIdx < updateRow.length; uIdx++) {
+      const currRule = rulesMap.get(updateRow[uIdx]);
+      for (let nextIdx = uIdx + 1; nextIdx < updateRow.length; nextIdx++) {
+        const pivotItem = updateRow[nextIdx];
+        if (!currRule?.includes(pivotItem)) {
+          isCorrectUpdate = false;
+          break;
+        }
       }
-
-      const currentUpdateWeight = ruleWeight.get(currUpdateItem) ?? 0;
-
-      if (prevUpdateWeight < currentUpdateWeight) {
-        isCorrectUpdate = false;
-        break;
-      }
-
-      prevUpdateWeight = ruleWeight.get(currUpdateItem) ?? 0;
     }
 
     if (isCorrectUpdate) {
-      const middleNumber = Number(update[Math.floor(update.length / 2)] ?? 0);
-
-      correctUpdatesSum += middleNumber;
+      correctUpdatesSum += Number(updateRow[Math.floor(updateRow.length / 2)]);
     }
   }
 
