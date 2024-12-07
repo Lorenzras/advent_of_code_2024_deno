@@ -3,7 +3,7 @@ import f from "./part_01.ts";
 
 const testCases = [
   {
-    filename: "input_01.txt",
+    filename: "input_sample.txt",
     expected: 18,
   },
 ];
