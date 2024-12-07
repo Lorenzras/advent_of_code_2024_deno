@@ -1,26 +1,23 @@
 import { assertEquals } from "@std/assert";
 import f from "./part_02.ts";
 
-Deno.test(
-  "should return the correct answer according to the sample in the problem",
-  () => {
-    const input = Deno.readTextFileSync(
-      `${import.meta.dirname}/input_sample_part_2.txt`
-    );
+const testCases = [
+  {
+    filename: "input_sample_part_2.txt",
+    expected: 48,
+  },
+  {
+    filename: "input.txt",
+    expected: 94455185,
+  },
+  // Add more test cases here
+];
 
-    assertEquals(f(input), 48);
-  }
-);
-
-Deno.test(
-  "should return the correct answer for the official input data",
-  () => {
-    const input = Deno.readTextFileSync(`${import.meta.dirname}/input.txt`);
-
+for (const { filename, expected } of testCases) {
+  Deno.test("should return the correct answer", () => {
+    const input = Deno.readTextFileSync(`${import.meta.dirname}/${filename}`);
     const result = f(input);
-
-    console.log("Result:", result);
-
-    assertEquals(result, 94455185);
-  }
-);
+    console.log(`Result: ${result} (${filename})`);
+    assertEquals(result, expected);
+  });
+}
