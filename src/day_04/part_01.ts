@@ -1,4 +1,4 @@
-const convertToMatrix = (input: string): string[][] => {
+export const convertToMatrix = (input: string): string[][] => {
   return input.split("\n").map((x) => x.split(""));
 };
 
