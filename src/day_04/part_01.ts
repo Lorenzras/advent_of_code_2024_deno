@@ -114,7 +114,6 @@ const countWord = (matrix: string[][], word: string): number => {
 
         const wordToCheck = wordToCheckArr.join("");
         if (wordToCheck === word) {
-          console.log(wordToCheck, row, col);
           count++;
         }
       }
