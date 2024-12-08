@@ -13,21 +13,21 @@ const findDirectionPosition = (rowStr: string): number => {
 };
 
 const checkObstruction = (destination: string) => {
-  if (destination === "#") {
-    return 0;
+  if (destination === "#" || destination === "O") {
+    return destination;
   }
 };
 
 /**
  * Not in the problem, but I will print the matrix to see what it looks like.
  */
-const printMatrix = (matrix: string[][]) => {
+/* const printMatrix = (matrix: string[][]) => {
   console.log("matrix");
   for (let r = 0; r < matrix.length; r++) {
     console.log(matrix[r].join(""));
   }
   console.log("\n");
-};
+}; */
 
 const move = (matrix: string[][], pos: number[], direction: Direction) => {
   let row = pos[0];
@@ -35,10 +35,20 @@ const move = (matrix: string[][], pos: number[], direction: Direction) => {
 
   matrix[row][col] = "X";
 
+  let obstructionPos: number[] | undefined;
+
+  const checkAndSetObstruction = (r: number, c: number) => {
+    const obs = checkObstruction(matrix[r]?.[c]);
+    if (obs) {
+      obstructionPos = [r, c];
+    }
+    return obs;
+  };
+
   switch (direction) {
-    case "^":
-      if (matrix[row - 1]?.[col] === "#") {
-        if (matrix[row]?.[col + 1] === "#") {
+    case "^": {
+      if (checkAndSetObstruction(row - 1, col)) {
+        if (checkAndSetObstruction(row, col + 1)) {
           direction = "v";
         } else {
           direction = ">";
@@ -48,9 +58,10 @@ const move = (matrix: string[][], pos: number[], direction: Direction) => {
         row--;
       }
       break;
-    case ">":
-      if (matrix[row]?.[col + 1] === "#") {
-        if (matrix[row + 1]?.[col] === "#") {
+    }
+    case ">": {
+      if (checkAndSetObstruction(row, col + 1)) {
+        if (checkAndSetObstruction(row + 1, col)) {
           direction = "<";
         } else {
           direction = "v";
@@ -60,9 +71,10 @@ const move = (matrix: string[][], pos: number[], direction: Direction) => {
         col++;
       }
       break;
+    }
     case "v":
-      if (matrix[row + 1]?.[col] === "#") {
-        if (matrix[row]?.[col - 1] === "#") {
+      if (checkAndSetObstruction(row + 1, col)) {
+        if (checkAndSetObstruction(row, col - 1)) {
           direction = "^";
         } else {
           direction = "<";
@@ -73,8 +85,8 @@ const move = (matrix: string[][], pos: number[], direction: Direction) => {
       }
       break;
     case "<":
-      if (matrix[row]?.[col - 1] === "#") {
-        if (matrix[row - 1]?.[col] === "#") {
+      if (checkAndSetObstruction(row, col - 1)) {
+        if (checkAndSetObstruction(row - 1, col)) {
           direction = ">";
         } else {
           direction = "^";
@@ -90,7 +102,7 @@ const move = (matrix: string[][], pos: number[], direction: Direction) => {
     matrix[row][col] = direction;
   }
 
-  return { matrix, pos: [row, col], direction };
+  return { matrix, pos: [row, col], direction, obstructionPos };
 };
 
 const initMatrix = (input: string) => {
@@ -115,48 +127,13 @@ const initMatrix = (input: string) => {
   return { matrix, pos, direction };
 };
 
-const markLineOfSight = (
-  matrix: string[][],
-  startRow: number,
-  startCol: number,
-  rowStep: number,
-  colStep: number
-) => {
-  let r = startRow;
-  let c = startCol;
-
-  while (r >= 0 && r < matrix.length && c >= 0 && c < matrix[0].length) {
-    if (matrix[r][c] === "#") {
-      break;
-    }
-    matrix[r][c] = "S";
-    r += rowStep;
-    c += colStep;
-  }
-};
-
 const getDistinctPostionsOutOfGuardSight = (
   matrix: string[][],
-  guardPos: [number, number],
-  direction: Direction
+  guardPos: [number, number]
 ) => {
   const [guardRow, guardCol] = guardPos;
   const distinctPosCoords: number[][] = [];
-
-  switch (direction) {
-    case "^":
-      markLineOfSight(matrix, guardRow - 1, guardCol, -1, 0);
-      break;
-    case ">":
-      markLineOfSight(matrix, guardRow, guardCol + 1, 0, 1);
-      break;
-    case "v":
-      markLineOfSight(matrix, guardRow + 1, guardCol, 1, 0);
-      break;
-    case "<":
-      markLineOfSight(matrix, guardRow, guardCol - 1, 0, -1);
-      break;
-  }
+  matrix[guardRow][guardCol] = "G";
 
   for (let r = 0; r < matrix.length; r++) {
     for (let c = 0; c < matrix[r].length; c++) {
@@ -172,16 +149,22 @@ const getDistinctPostionsOutOfGuardSight = (
 const countPossibleLoopObstacles = (
   matrix: string[][],
   distinctPos: number[][],
+  initialPos: [number, number],
   initialDirection: Direction
 ) => {
+  let totalLoops = 0;
+
   for (const [r, c] of distinctPos) {
     const freshMatrix = deepCopyMatrix(matrix);
     freshMatrix[r][c] = "O";
-    // patrol(freshMatrix, [r, c], initialDirection);
-    // printMatrix(freshMatrix);
+
+    const { isLoop } = patrol(freshMatrix, initialPos, initialDirection);
+    if (isLoop) {
+      totalLoops++;
+    }
   }
 
-  return 0;
+  return totalLoops;
 };
 
 export const patrol = (
@@ -193,6 +176,8 @@ export const patrol = (
   let col = pos[1];
   let direction = initialDirection;
 
+  const obstructionMap = new Map<string, number>();
+
   while (
     row >= 0 &&
     row < matrix.length &&
@@ -202,15 +187,34 @@ export const patrol = (
     const {
       pos: [newRow, newCol],
       direction: newDirection,
+      obstructionPos: newObstructionPos,
     } = move(matrix, [row, col], direction);
 
-    printMatrix(matrix);
     row = newRow;
     col = newCol;
     direction = newDirection;
+
+    if (newObstructionPos) {
+      const key = `${newObstructionPos[0]}-${newObstructionPos[1]}`;
+      if (!obstructionMap.has(key)) {
+        obstructionMap.set(key, 0);
+      } else {
+        const collisionCount = obstructionMap.get(key)! + 1;
+        obstructionMap.set(key, collisionCount);
+        if (collisionCount > 3) {
+          return {
+            matrix,
+            isLoop: true,
+          };
+        }
+      }
+    }
   }
 
-  return matrix;
+  return {
+    matrix,
+    isLoop: false,
+  };
 };
 
 export default function (input: string): number {
@@ -218,23 +222,19 @@ export default function (input: string): number {
 
   const matrixCopy = deepCopyMatrix(matrix);
 
-  const matrixWithPath = patrol(matrixCopy, pos, direction);
-
-  printMatrix(matrixWithPath);
+  const { matrix: matrixWithPath } = patrol(matrixCopy, pos, direction);
 
   const distinctPosCoords = getDistinctPostionsOutOfGuardSight(
     matrixWithPath,
-    pos,
-    direction
+    pos
   );
 
   const possibleObstacles = countPossibleLoopObstacles(
     matrix,
     distinctPosCoords,
+    pos,
     direction
   );
-
-  console.log(distinctPosCoords);
 
   return possibleObstacles;
 }
