@@ -6,6 +6,10 @@ const testCases = [
     filename: "input_sample.txt",
     expected: 41,
   },
+  {
+    filename: "input.txt",
+    expected: 5208,
+  },
 ];
 
 for (const { filename, expected } of testCases) {
