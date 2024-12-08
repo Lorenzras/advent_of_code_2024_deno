@@ -37,7 +37,7 @@ const applyOperators = (operators: Opt[], values: number[]): number => {
   return result;
 };
 
-const parseInput = (input: string) => {
+export const parseInput = (input: string) => {
   const parsedInput: [number, number[]][] = input.split("\n").map((row) => {
     const [result, values] = row.split(": ");
     return [Number(result), values.split(" ").map(Number)];
