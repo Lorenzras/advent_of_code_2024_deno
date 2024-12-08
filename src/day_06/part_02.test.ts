@@ -2,20 +2,8 @@ import { assertEquals } from "@std/assert";
 import f from "./part_02.ts";
 
 const testCases = [
-  /*   {
-    filename: "input_edgecase_01.txt",
-    expected: 6,
-  }, */
-  /*   {
-    filename: "input_edgecase_02.txt",
-    expected: 6,
-  }, */
-  /*   {
-    filename: "input_edgecase_03.txt",
-    expected: 6,
-  }, */
   {
-    filename: "input_edgecase_04.txt",
+    filename: "input_sample.txt",
     expected: 6,
   },
 ];

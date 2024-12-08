@@ -12,6 +12,12 @@ const findDirectionPosition = (rowStr: string): number => {
   return match ? rowStr.indexOf(match[0]) : -1;
 };
 
+const checkObstruction = (destination: string) => {
+  if (destination === "#") {
+    return 0;
+  }
+};
+
 /**
  * Not in the problem, but I will print the matrix to see what it looks like.
  */
@@ -23,7 +29,7 @@ const printMatrix = (matrix: string[][]) => {
   console.log("\n");
 };
 
-const patrol = (matrix: string[][], pos: number[], direction: Direction) => {
+const move = (matrix: string[][], pos: number[], direction: Direction) => {
   let row = pos[0];
   let col = pos[1];
 
@@ -80,14 +86,11 @@ const patrol = (matrix: string[][], pos: number[], direction: Direction) => {
       break;
   }
 
-  if (row >= 0 && row < matrix.length && col >= 0 && col < matrix[0].length) {
+  if (matrix[row]?.[col]) {
     matrix[row][col] = direction;
-
-    printMatrix(matrix);
-    return patrol(matrix, [row, col], direction);
   }
 
-  return matrix;
+  return { matrix, pos: [row, col], direction };
 };
 
 const initMatrix = (input: string) => {
@@ -155,8 +158,6 @@ const getDistinctPostionsOutOfGuardSight = (
       break;
   }
 
-  printMatrix(matrix);
-
   for (let r = 0; r < matrix.length; r++) {
     for (let c = 0; c < matrix[r].length; c++) {
       if (matrix[r][c] === "X" && !(r === guardRow && c === guardCol)) {
@@ -170,15 +171,46 @@ const getDistinctPostionsOutOfGuardSight = (
 
 const countPossibleLoopObstacles = (
   matrix: string[][],
-  distinctPos: number[][]
+  distinctPos: number[][],
+  initialDirection: Direction
 ) => {
   for (const [r, c] of distinctPos) {
     const freshMatrix = deepCopyMatrix(matrix);
     freshMatrix[r][c] = "O";
+    // patrol(freshMatrix, [r, c], initialDirection);
     // printMatrix(freshMatrix);
   }
 
   return 0;
+};
+
+export const patrol = (
+  matrix: string[][],
+  pos: number[],
+  initialDirection: Direction
+) => {
+  let row = pos[0];
+  let col = pos[1];
+  let direction = initialDirection;
+
+  while (
+    row >= 0 &&
+    row < matrix.length &&
+    col >= 0 &&
+    col < matrix[0].length
+  ) {
+    const {
+      pos: [newRow, newCol],
+      direction: newDirection,
+    } = move(matrix, [row, col], direction);
+
+    printMatrix(matrix);
+    row = newRow;
+    col = newCol;
+    direction = newDirection;
+  }
+
+  return matrix;
 };
 
 export default function (input: string): number {
@@ -198,7 +230,8 @@ export default function (input: string): number {
 
   const possibleObstacles = countPossibleLoopObstacles(
     matrix,
-    distinctPosCoords
+    distinctPosCoords,
+    direction
   );
 
   console.log(distinctPosCoords);
