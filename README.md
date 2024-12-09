@@ -6,7 +6,7 @@ Solutions are based on what I came up with when riding the train to work or late
 
 I add non-relevant comments along side the code to help me remember what I was thinking at the time.
 
-In other words, this is not a tutorial, but a diary. XD
+In other words, this is not a tutorial, but a diary. 😂
 
 ## Environment
 
