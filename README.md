@@ -10,7 +10,7 @@ In other words, this is not a tutorial, but a diary. 😂
 
 ## Environment
 
-Deno is used to run the code. You can install it by following the instructions on the [Deno website](https://deno.land/).
+Deno is used to run the code. You can install it by following the instructions on the [Deno website](https://docs.deno.com/runtime/).
 
 ## Testing
 
