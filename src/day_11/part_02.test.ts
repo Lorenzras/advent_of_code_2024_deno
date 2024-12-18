@@ -3,8 +3,8 @@ import f from "./part_02.ts";
 
 const testCases = [
   {
-    filename: "input_sample.txt",
-    expected: 0,
+    filename: "input.txt",
+    expected: 274229228071551,
   },
 ];
 
